@@ -1,0 +1,12 @@
+services:
+  Gdnacho\Poob\:
+    resource: '../../*'
+    autowire: true
+    autoconfigure: true
+    exclude:
+      - '../../Resources/config/*'
+      - '../../Command/*'
+
+  Gdnacho\Poob\Command\:
+    resource: '../../Command/*'
+    tags: ['console.command']
