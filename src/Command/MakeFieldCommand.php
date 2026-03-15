@@ -2,13 +2,13 @@
 
 namespace Gdnacho\Poob\Command;
 
+use Gdnacho\Poob\Generator\Paths;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-use Gdnacho\Poob\Generator\Paths;
 
 #[AsCommand(name: 'poob:make:field')]
 class MakeFieldCommand extends Command
@@ -30,13 +30,14 @@ class MakeFieldCommand extends Command
         $fs = new Filesystem();
 
         if ($fs->exists($path)) {
-            $output->writeln("<error>Field already exists.</error>");
+            $output->writeln('<error>Field already exists.</error>');
+
             return Command::FAILURE;
         }
 
         $fs->mkdir($dir);
 
-        $template = file_get_contents(Paths::TEMPLATE_DIR . '/field.tpl.php');
+        $template = file_get_contents(Paths::TEMPLATE_DIR.'/field.tpl.php');
         $code = str_replace('FieldName', $class, $template);
 
         $fs->dumpFile($path, $code);

@@ -2,8 +2,8 @@
 
 namespace Gdnacho\Poob\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
 
 #[AsCommand(name: 'poob:make:docs')]
 class GenerateDocsCommand extends Command

@@ -2,9 +2,6 @@
 
 namespace App\Api\InputDto;
 
-use Symfony\Component\Validator\Constraints as Assert;
-use App\Api\Field;
-
 class InputName
 {
     // public mixed $attribute;

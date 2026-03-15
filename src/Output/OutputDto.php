@@ -14,7 +14,7 @@ abstract class OutputDto
         foreach ($ctor->getParameters() as $param) {
             $name = $param->getName();
 
-            $getter = 'get' . ucfirst($name);
+            $getter = 'get'.ucfirst($name);
 
             if (method_exists($source, $getter)) {
                 $args[] = $source->$getter();
