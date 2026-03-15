@@ -1,6 +1,6 @@
 {
     "name": "gdnacho/poob",
-    "description": "Input/Output DTO generator and validator.",
+    "description": "Input/Output DTO generator, validator, and API scaffolding helper for Symfony.",
     "type": "symfony-bundle",
     "license": "MIT",
     "autoload": {
