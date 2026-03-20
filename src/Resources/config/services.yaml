@@ -5,8 +5,3 @@ services:
     autoconfigure: true
     exclude:
       - '../../Resources/config/*'
-      - '../../Command/*'
-
-  Gdnacho\Poob\Command\:
-    resource: '../../Command/*'
-    tags: ['console.command']

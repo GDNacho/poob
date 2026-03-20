@@ -121,3 +121,9 @@ class UsernameOutput extends OutputDto
 All Output DTOs should extend OutputDto. This provides two convenient static methods:
 - `from(object $source): static`: Creates a new DTO from any object, such as entities.
 - `collection(iterable $items): array`: Converts a list of objects into an array of DTOs. Uses from() internally for each item.
+
+## Contributing
+
+Poob is just a small package with not a lot of thought put into it, mostly for me to use in my own projects. Regardless, contributions as small as just submitting issues are welcome.
+
+*"u gota get a groov!!!"*

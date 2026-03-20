@@ -53,13 +53,7 @@ class RequestInputResolver implements ValueResolverInterface
 
         // DTOs
         if ($type && class_exists($type)) {
-            $dto = new $type();
-
-            foreach ($data as $key => $value) {
-                if (property_exists($dto, $key)) {
-                    $dto->$key = $value;
-                }
-            }
+            $dto = new $type($data);
 
             // Validate DTO
             $this->validator->validate($dto);

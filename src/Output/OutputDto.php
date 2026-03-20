@@ -4,7 +4,7 @@ namespace Gdnacho\Poob\Output;
 
 /**
  * Base class for all Output DTOs.
- * 
+ *
  * Provides helper methods to create DTOs from objects and collections.
  */
 abstract class OutputDto
@@ -18,6 +18,7 @@ abstract class OutputDto
      * 3. Uses default constructor value or null if neither exists
      *
      * @param object $source Source object to map from
+     *
      * @return static New instance of the OutputDto
      */
     public static function from(object $source): static
@@ -50,11 +51,11 @@ abstract class OutputDto
         return new static(...$args);
     }
 
-
     /**
      * Converts a collection of objects into an array of DTOs.
      *
      * @param iterable $items Source objects to map
+     *
      * @return array Array of OutputDto instances
      */
     public static function collection(iterable $items): array

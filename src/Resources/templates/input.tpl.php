@@ -2,7 +2,10 @@
 
 namespace App\Api\InputDto;
 
-class InputName
+use Gdnacho\Poob\Input\InputDto;
+use Symfony\Component\Validator\Constraints as Assert;
+
+class InputName extends InputDto
 {
     // public mixed $attribute;
 
