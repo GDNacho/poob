@@ -19,6 +19,7 @@ The goal is to provide a less opinionated micro-framework than API Platform, and
   - `/InputDto`
   - `/OutputDto`
   - `/Field`  
+- Generate API docs (`poob:make:docs`)  
 
 ---
 

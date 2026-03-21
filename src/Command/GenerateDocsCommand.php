@@ -12,7 +12,6 @@ use Symfony\Component\Yaml\Yaml;
 #[AsCommand(name: 'poob:make:docs')]
 class GenerateDocsCommand extends Command
 {
-
     public function __construct(
         private RouterInterface $router,
         private array $docsConfig,
@@ -120,7 +119,7 @@ class GenerateDocsCommand extends Command
 
         $yaml = Yaml::dump($openapi, 10);
         file_put_contents($this->docsConfig['output'], $yaml);
-        $output->writeln("<info>Docs generated:</info> " . $this->docsConfig['output']);
+        $output->writeln('<info>Docs generated:</info> '.$this->docsConfig['output']);
 
         return Command::SUCCESS;
     }
@@ -209,10 +208,10 @@ class GenerateDocsCommand extends Command
         // LENGTH
         // --------------------
         if ($constraint instanceof \Symfony\Component\Validator\Constraints\Length) {
-            if ($constraint->min !== null) {
+            if (null !== $constraint->min) {
                 $schemaProp['minLength'] = $constraint->min;
             }
-            if ($constraint->max !== null) {
+            if (null !== $constraint->max) {
                 $schemaProp['maxLength'] = $constraint->max;
             }
         }
@@ -221,10 +220,10 @@ class GenerateDocsCommand extends Command
         // RANGE
         // --------------------
         if ($constraint instanceof \Symfony\Component\Validator\Constraints\Range) {
-            if ($constraint->min !== null) {
+            if (null !== $constraint->min) {
                 $schemaProp['minimum'] = $constraint->min;
             }
-            if ($constraint->max !== null) {
+            if (null !== $constraint->max) {
                 $schemaProp['maximum'] = $constraint->max;
             }
         }
@@ -296,10 +295,10 @@ class GenerateDocsCommand extends Command
         // COUNT (arrays)
         // --------------------
         if ($constraint instanceof \Symfony\Component\Validator\Constraints\Count) {
-            if ($constraint->min !== null) {
+            if (null !== $constraint->min) {
                 $schemaProp['minItems'] = $constraint->min;
             }
-            if ($constraint->max !== null) {
+            if (null !== $constraint->max) {
                 $schemaProp['maxItems'] = $constraint->max;
             }
         }
@@ -373,7 +372,7 @@ class GenerateDocsCommand extends Command
             $schemaProp['format'] = 'uuid';
 
             if ($constraint->versions) {
-                $schemaProp['description'] = 'UUID version: ' . implode(',', $constraint->versions);
+                $schemaProp['description'] = 'UUID version: '.implode(',', $constraint->versions);
             }
         }
 
