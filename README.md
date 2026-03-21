@@ -123,6 +123,33 @@ All Output DTOs should extend OutputDto. This provides two convenient static met
 - `from(object $source): static`: Creates a new DTO from any object, such as entities.
 - `collection(iterable $items): array`: Converts a list of objects into an array of DTOs. Uses from() internally for each item.
 
+## API Docs generation
+
+You may generate rudimentary OpenAPI documentation for your API with the `poob:make:docs` command.
+Poob will scan all your routes (With a prefix of `/api` by default) and Input DTOs schema and validation rules to generate it. $ref is not yet supported.
+
+You can configure your API docs in `config/packages/poob.yaml`:
+```yaml
+poob:
+  docs:
+    title: 'Poob API'
+    version: '1.0.0'
+    description: ''
+
+    servers:
+      - url: 'http://localhost:8000'
+        description: 'Local'
+      - url: 'https://api.example.com'
+        description: 'Production'
+
+    default_responses:
+      '200':
+        description: OK
+
+    path_prefix: '/api'
+    output: '%kernel.project_dir%/openapi.yaml'
+```
+
 ## Contributing
 
 Poob is just a small package with not a lot of thought put into it, mostly for me to use in my own projects. Regardless, contributions as small as just submitting issues are welcome.
