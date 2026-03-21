@@ -11,8 +11,16 @@ class PoobExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $locator = new FileLocator(__DIR__.'/../Resources/config'); // implements FileLocatorInterface
-        $loader = new YamlFileLoader($container, $locator);
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter('poob.docs', $config['docs']);
+
+        $loader = new YamlFileLoader(
+            $container,
+            new FileLocator(__DIR__.'/../Resources/config')
+        );
+
         $loader->load('services.yaml');
     }
 }

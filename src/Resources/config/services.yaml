@@ -5,3 +5,8 @@ services:
     autoconfigure: true
     exclude:
       - '../../Resources/config/*'
+  Gdnacho\Poob\Command\GenerateDocsCommand:
+    arguments:
+      $router: '@router'
+      $docsConfig: '%poob.docs%'
+    tags: ['console.command']
