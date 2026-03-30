@@ -5,6 +5,8 @@ services:
     autoconfigure: true
     exclude:
       - '../../Resources/config/*'
+      - '../../Command/GenerateDocsCommand.php'
+
   Gdnacho\Poob\Command\GenerateDocsCommand:
     arguments:
       $router: '@router'
