@@ -6,6 +6,7 @@ namespace Gdnacho\Poob\Attribute;
 class Summary
 {
     public function __construct(
-        public string $text
-    ) {}
+        public string $text,
+    ) {
+    }
 }

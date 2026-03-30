@@ -3,7 +3,7 @@
 namespace App\Api\InputDto;
 
 use Gdnacho\Poob\Input\InputDto;
-use Symfony\Component\Validator\Constraints as Assert;
+
 // use App\Api\Field;
 
 class InputName extends InputDto

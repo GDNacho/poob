@@ -31,9 +31,9 @@ class InitCommand extends Command
 
         // DIRECTORIES
         $dirs = [
-            $projectDir . '/src/Api/Field',
-            $projectDir . '/src/Api/InputDto',
-            $projectDir . '/src/Api/OutputDto',
+            $projectDir.'/src/Api/Field',
+            $projectDir.'/src/Api/InputDto',
+            $projectDir.'/src/Api/OutputDto',
         ];
 
         foreach ($dirs as $dir) {
@@ -42,7 +42,7 @@ class InitCommand extends Command
                 $output->writeln("<info>Created directory:</info> $dir");
             }
 
-            $gitkeep = $dir . '/.gitkeep';
+            $gitkeep = $dir.'/.gitkeep';
             if (!$fs->exists($gitkeep)) {
                 $fs->touch($gitkeep);
             }

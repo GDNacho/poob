@@ -34,9 +34,9 @@ abstract class OutputDto
             $ucName = ucfirst($name);
 
             $getters = [
-                'get' . $ucName,
-                'is' . $ucName,
-                'has' . $ucName,
+                'get'.$ucName,
+                'is'.$ucName,
+                'has'.$ucName,
             ];
 
             foreach ($getters as $getter) {
