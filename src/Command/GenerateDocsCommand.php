@@ -79,6 +79,14 @@ class GenerateDocsCommand extends Command
 
                     // Dump Input
                     $reflection = new \ReflectionMethod($class, $methodName);
+                    foreach ($reflection->getAttributes(\Gdnacho\Poob\Attribute\Description::class) as $attr) {
+                        $instance = $attr->newInstance();
+                        $operation['description'] = $instance->text;
+                    }
+                    foreach ($reflection->getAttributes(\Gdnacho\Poob\Attribute\Summary::class) as $attr) {
+                        $instance = $attr->newInstance();
+                        $operation['summary'] = $instance->text;
+                    }
                     foreach ($reflection->getParameters() as $param) {
                         $type = $param->getType()?->getName();
 
@@ -184,6 +192,11 @@ class GenerateDocsCommand extends Command
                             $this->applyConstraint($constraint, $schemaProp);
                         }
                     }
+                }
+
+                // Description
+                if ($instance instanceof \Gdnacho\Poob\Attribute\Description) {
+                    $schemaProp['description'] = $instance->text;
                 }
             }
 
