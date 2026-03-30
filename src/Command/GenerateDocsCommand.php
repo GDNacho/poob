@@ -27,6 +27,7 @@ class GenerateDocsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $tags = [];
         $openapi = [
             'openapi' => '3.0.0',
             'info' => array_filter([
@@ -70,7 +71,14 @@ class GenerateDocsCommand extends Command
                     // Dump operation ID (Controller)
                     [$class, $methodName] = explode('::', $controller);
                     $shortClass = (new \ReflectionClass($class))->getShortName();
+                    $tag = str_replace('Controller', '', $shortClass);
                     $operation['operationId'] = $shortClass.'::'.$methodName;
+
+                    $tags[$tag] = [
+                        'name' => $tag,
+                        'description' => "$tag operations",
+                    ];
+                    $operation['tags'] = [$tag];
 
                     // Dump output (TODO)
                     $operation['responses'] = $this->docsConfig['default_responses'] ?? [
@@ -121,11 +129,26 @@ class GenerateDocsCommand extends Command
                 }
 
                 // Write
+                $pathVariables = $route->compile()->getPathVariables();
+                foreach ($pathVariables as $var) {
+                    $operation['parameters'][] = [
+                        'name' => $var,
+                        'in' => 'path',
+                        'required' => true,
+                        'schema' => [
+                            'type' => 'string',
+                        ],
+                    ];
+                }
                 $paths[$path][$method] = $operation;
             }
         }
+        $openapi['tags'] = array_values($tags);
 
-        $yaml = Yaml::dump($openapi, 10);
+        $yaml = Yaml::dump(
+            $openapi,
+            10,
+        );
         file_put_contents($this->docsConfig['output'], $yaml);
         $output->writeln('<info>Docs generated:</info> '.$this->docsConfig['output']);
 

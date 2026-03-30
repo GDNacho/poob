@@ -31,11 +31,19 @@ abstract class OutputDto
         foreach ($ctor->getParameters() as $param) {
             $name = $param->getName();
 
-            $getter = 'get'.ucfirst($name);
+            $ucName = ucfirst($name);
 
-            if (method_exists($source, $getter)) {
-                $args[] = $source->$getter();
-                continue;
+            $getters = [
+                'get' . $ucName,
+                'is' . $ucName,
+                'has' . $ucName,
+            ];
+
+            foreach ($getters as $getter) {
+                if (method_exists($source, $getter)) {
+                    $args[] = $source->$getter();
+                    continue 2;
+                }
             }
 
             if (property_exists($source, $name)) {
