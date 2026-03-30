@@ -1,8 +1,8 @@
 # Poob
 
-**Poob** – Input/Output DTO generator, validator, and lightweight API scaffolding helper for Symfony.
+**Poob** – Input/Output DTO generator, validator, and OpenAPI docs generator.
 
-Poob allows you to quickly create Input DTOs, Output DTOs, and Field definitions using Symfony Validator. Input DTOs are automatically validated through a value resolver. In the future, Poob will also provide a command to generate OpenAPI documentation by scanning your routes.
+Quickly create Input DTOs, Output DTOs, and Field definitions using Symfony Validator. Input DTOs are automatically validated through a value resolver, as well as OpenAPI docs generation.
 
 The goal is to provide a less opinionated micro-framework than API Platform, and a bundle like Nelmio/ApiDocBundle without the annotation boilerplate.
 
@@ -29,6 +29,11 @@ Add Poob to your Symfony project via Composer:
 
 ```bash
 composer require gdnacho/poob
+```
+
+Then initialize (This will create the directories /src/Api and /config/packages/poob_api.yaml):
+```bash
+php bin/console poob:init
 ```
 
 ## Usage
@@ -128,7 +133,7 @@ All Output DTOs should extend OutputDto. This provides two convenient static met
 You may generate rudimentary OpenAPI documentation for your API with the `poob:make:docs` command.
 Poob will scan all your routes (With a prefix of `/api` by default) and Input DTOs schema and validation rules to generate it. $ref is not yet supported.
 
-You can configure your API docs in `config/packages/poob.yaml`:
+You can configure your API docs in `config/packages/poob_api.yaml`:
 ```yaml
 poob:
   docs:
@@ -148,6 +153,106 @@ poob:
 
     path_prefix: '/api'
     output: '%kernel.project_dir%/openapi.yaml'
+```
+
+### Description & Summary attributes
+
+You may use these attributes atop controllers for the API docs generation:
+```php
+#[Route('/api/user/{id}', methods: ['GET'], name: 'app_user_get')]
+#[Summary('Get user')] // Adds a summary
+public function get(string $id, ListUserInput $data): JsonResponse
+```
+
+You can also use description for properties in InputDTOs:
+```php
+class CreateUserInput extends InputDto
+{
+    #[Field\UsernameField]
+    #[Description('Username must be 3-24 characters long')] // Adds a description
+    public string $username;
+}
+```
+
+## Full CRUD controller example
+
+```php
+final class UserController extends AbstractController
+{
+    public function __construct(
+        private UserRepository $repo,
+    ) {
+    }
+
+    #[Route('/api/user/{id}', methods: ['GET'], name: 'app_user_get')]
+    #[Summary('Get user')]
+    public function get(string $id, ListUserInput $data): JsonResponse
+    {
+        $user = $this->repo->find($id);
+        if (!$user) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+
+        return $this->json(ListUserOutput::from($user));
+    }
+
+    #[Route('/api/user', methods: ['GET'], name: 'app_user_list')]
+    #[Summary('List user')]
+    public function list(ListUserInput $data): JsonResponse
+    {
+        $users = $this->repo->findByFilters($data);
+
+        return $this->json(ListUserOutput::collection($users));
+    }
+
+    #[Route('/api/user', methods: ['POST'], name: 'app_user_create')]
+    #[Summary('Create user')]
+    public function create(CreateUserInput $data, EntityManagerInterface $em): JsonResponse
+    {
+        $user = new User();
+        $user->setUsername($data->username);
+        $user->setAge($data->age);
+        $user->setEmail($data->email ?? null);
+
+        $em->persist($user);
+        $em->flush();
+
+        return $this->json(CreateUserOutput::from($user), 201);
+    }
+
+    #[Route('/api/user/{id}', methods: ['PATCH'], name: 'app_user_update')]
+    #[Summary('Update user')]
+    public function update(string $id, UpdateUserInput $data, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->repo->find($id);
+        if (!$user) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+
+        if ($data->username !== null) $user->setUsername($data->username);
+        if ($data->age !== null) $user->setAge($data->age);
+        if ($data->email !== null) $user->setEmail($data->email);
+        $em->flush();
+
+        return $this->json(CreateUserOutput::from($user));
+    }
+
+    #[Route('/api/user/{id}', methods: ['DELETE'], name: 'app_user_delete')]
+    #[Summary('Delete user')]
+    public function delete(string $id, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->repo->find($id);
+        if (!$user) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+
+        $em->remove($user);
+        $em->flush();
+
+        return $this->json('', 204);
+    }
+}
+
 ```
 
 ## Contributing
