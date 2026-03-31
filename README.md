@@ -71,6 +71,15 @@ public function getUser(
 }
 ```
 
+Optionally, you can also map requests directly to an unvalidated array if the parameter is named `$requestData`:
+```php
+public function getUser(
+    array $requestData,
+    UserRepository $userRepository
+): JsonResponse {
+}
+```
+
 ### Input DTO
 ```php
 // src/Api/InputDto/UsernameInput.php

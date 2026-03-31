@@ -72,7 +72,7 @@ abstract class InputDto
         }
     }
 
-    protected function extra()
+    public function extra()
     {
     }
 }

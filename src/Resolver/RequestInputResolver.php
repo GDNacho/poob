@@ -18,15 +18,16 @@ class RequestInputResolver implements ValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        // Check if it extends InputDto
+        // Check if it extends InputDto or if it is an array named requestData
         $type = $argument->getType();
-        if (!$type || !class_exists($type) || !is_subclass_of($type, InputDto::class)) {
+        $isRequestDataArray = 'array' === $type && 'requestData' === $argument->getName();
+
+        if (!$isRequestDataArray && (!$type || !class_exists($type) || !is_subclass_of($type, InputDto::class))) {
             return [];
         }
 
         /* Get data from body or query params */
         $content = $request->getContent();
-        $routeParams = $request->attributes->all();
         $routeParams = array_filter(
             $request->attributes->all(),
             fn ($key) => !str_starts_with($key, '_'),
@@ -48,15 +49,20 @@ class RequestInputResolver implements ValueResolverInterface
             $data = \array_merge($routeParams, $queryParams);
         }
         /* ---------------------------------- */
-        
-        // Validate DTO
-        $dto = new $type($data);
-        $this->validator->validate($dto);
 
-        // Run custom rules
-        if (method_exists($type, 'extra')) {
-            $dto->extra();
+        // Handle arrays
+        if ($isRequestDataArray) {
+            yield $data;
+
+            return;
         }
+
+        // Handle DTOs
+        $dto = new $type($data);
+
+        // Validate DTO
+        $this->validator->validate($dto);
+        $dto->extra();
 
         yield $dto;
     }
