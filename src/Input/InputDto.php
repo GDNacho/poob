@@ -71,4 +71,8 @@ abstract class InputDto
             throw new ValidationException($errors);
         }
     }
+
+    protected function extra()
+    {
+    }
 }

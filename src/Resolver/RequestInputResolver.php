@@ -2,6 +2,7 @@
 
 namespace Gdnacho\Poob\Resolver;
 
+use Gdnacho\Poob\Input\InputDto;
 use Gdnacho\Poob\Validation\ValidationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
@@ -17,10 +18,14 @@ class RequestInputResolver implements ValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
+        // Check if it extends InputDto
         $type = $argument->getType();
-        $content = $request->getContent();
+        if (!$type || !class_exists($type) || !is_subclass_of($type, InputDto::class)) {
+            return [];
+        }
 
         /* Get data from body or query params */
+        $content = $request->getContent();
         $routeParams = $request->attributes->all();
         $routeParams = array_filter(
             $request->attributes->all(),
@@ -43,27 +48,16 @@ class RequestInputResolver implements ValueResolverInterface
             $data = \array_merge($routeParams, $queryParams);
         }
         /* ---------------------------------- */
+        
+        // Validate DTO
+        $dto = new $type($data);
+        $this->validator->validate($dto);
 
-        // Arrays
-        if ('array' === $type) {
-            yield $data;
-
-            return;
+        // Run custom rules
+        if (method_exists($type, 'extra')) {
+            $dto->extra();
         }
 
-        // DTOs
-        if ($type && class_exists($type)) {
-            $dto = new $type($data);
-
-            // Validate DTO
-            $this->validator->validate($dto);
-
-            // Run custom rules
-            if (method_exists($type, 'extra')) {
-                $dto->extra();
-            }
-
-            yield $dto;
-        }
+        yield $dto;
     }
 }
