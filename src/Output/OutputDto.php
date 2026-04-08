@@ -39,6 +39,8 @@ abstract class OutputDto
                 'get'.$ucName,
                 'is'.$ucName,
                 'has'.$ucName,
+                $ucName,
+                $name,
             ];
 
             foreach ($getters as $getter) {
