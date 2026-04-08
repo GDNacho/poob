@@ -30,8 +30,10 @@ abstract class OutputDto
 
         foreach ($ctor->getParameters() as $param) {
             $name = $param->getName();
-
             $ucName = ucfirst($name);
+
+            $value = null;
+            $found = false;
 
             $getters = [
                 'get'.$ucName,
@@ -41,19 +43,38 @@ abstract class OutputDto
 
             foreach ($getters as $getter) {
                 if (method_exists($source, $getter)) {
-                    $args[] = $source->$getter();
-                    continue 2;
+                    $value = $source->$getter();
+                    $found = true;
+                    break;
                 }
             }
 
-            if (property_exists($source, $name)) {
-                $args[] = $source->$name;
-                continue;
+            if (!$found && property_exists($source, $name)) {
+                $value = $source->$name;
+                $found = true;
             }
 
-            $args[] = $param->isDefaultValueAvailable()
-                ? $param->getDefaultValue()
-                : null;
+            if (!$found) {
+                $value = $param->isDefaultValueAvailable()
+                    ? $param->getDefaultValue()
+                    : null;
+            }
+
+            // Detect nested DTOs
+            $type = $param->getType();
+            if ($type && !$type->isBuiltin()) {
+                $typeName = $type->getName();
+
+                if (
+                    is_subclass_of($typeName, OutputDto::class) &&
+                    $value !== null &&
+                    !$value instanceof $typeName
+                ) {
+                    $value = $typeName::from($value);
+                }
+            }
+
+            $args[] = $value;
         }
 
         return new static(...$args);
