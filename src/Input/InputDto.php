@@ -38,7 +38,7 @@ abstract class InputDto
             }
 
             // Field missing
-            if ($required && !array_key_exists($name, $data)) {
+            if ($required && !\array_key_exists($name, $data)) {
                 $errors[] = [
                     'field' => $name,
                     'message' => 'This value is required.',
@@ -46,7 +46,7 @@ abstract class InputDto
                 continue;
             }
 
-            if (array_key_exists($name, $data)) {
+            if (\array_key_exists($name, $data)) {
                 $value = $data[$name];
 
                 if ($type && null !== $value) {
@@ -63,7 +63,7 @@ abstract class InputDto
 
                                 $errors[] = [
                                     'field' => $name,
-                                    'message' => sprintf(
+                                    'message' => \sprintf(
                                         "Invalid value. Allowed values: %s.",
                                         implode(', ', $allowed)
                                     ),
@@ -88,7 +88,7 @@ abstract class InputDto
 
                                 $errors[] = [
                                     'field' => $name,
-                                    'message' => sprintf(
+                                    'message' => \sprintf(
                                         "Invalid value. Allowed values: %s.",
                                         implode(', ', $allowed)
                                     ),
@@ -104,15 +104,21 @@ abstract class InputDto
                     }
 
                     // Normal scalar type check
-                    $expectedGetType = $typeMap[$expected] ?? $expected;
+                    [$coerced, $ok] = (function ($value, $expected) {
+                        $ok = true;
+                        $result = $this->coerceValue($value, $expected, $ok);
+                        return [$result, $ok];
+                    })($value, $expected);
 
-                    if (gettype($value) !== $expectedGetType && 'mixed' !== $expected) {
+                    if (!$ok) {
                         $errors[] = [
                             'field' => $name,
                             'message' => "Wrong type for property $name, expected $expected.",
                         ];
                         continue;
                     }
+
+                    $value = $coerced;
                 }
 
                 $this->$name = $value;
@@ -121,6 +127,86 @@ abstract class InputDto
 
         if (!empty($errors)) {
             throw new ValidationException($errors);
+        }
+    }
+
+    private function coerceValue(mixed $value, string $expected, bool &$ok): mixed
+    {
+        $ok = true;
+
+        switch ($expected) {
+            case 'bool':
+            case 'boolean':
+                if (\is_bool($value)) {
+                    return $value;
+                }
+
+                if (\is_string($value)) {
+                    $lower = strtolower($value);
+                    if (in_array($lower, ['true', '1'], true)) return true;
+                    if (in_array($lower, ['false', '0'], true)) return false;
+                }
+
+                if (\is_int($value)) {
+                    if ($value === 1) return true;
+                    if ($value === 0) return false;
+                }
+
+                $ok = false;
+                return null;
+
+            case 'int':
+            case 'integer':
+                if (\is_int($value)) {
+                    return $value;
+                }
+
+                if (\is_string($value) && preg_match('/^-?\d+$/', $value)) {
+                    return (int) $value;
+                }
+
+                $ok = false;
+                return null;
+
+            case 'float':
+            case 'double':
+                if (\is_float($value) || is_int($value)) {
+                    return (float) $value;
+                }
+
+                if (\is_string($value) && is_numeric($value)) {
+                    return (float) $value;
+                }
+
+                $ok = false;
+                return null;
+
+            case 'string':
+                if (\is_scalar($value)) {
+                    return (string) $value;
+                }
+
+                $ok = false;
+                return null;
+
+            case 'array':
+                if (\is_array($value)) {
+                    return $value;
+                }
+
+                $ok = false;
+                return null;
+
+            case 'mixed':
+                return $value;
+
+            default:
+                if ($value instanceof $expected) {
+                    return $value;
+                }
+
+                $ok = false;
+                return null;
         }
     }
 
