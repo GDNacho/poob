@@ -178,12 +178,42 @@ class GenerateDocsCommand extends Command
 
             // -------- TYPE --------
             $openApiType = 'string';
+
             if ($type) {
                 $typeName = $type->getName();
-                $openApiType = $typeMap[$typeName] ?? 'string';
-            }
 
-            $schemaProp['type'] = $openApiType;
+                // ✅ Handle enums FIRST
+                if (enum_exists($typeName)) {
+                    $reflectionEnum = new \ReflectionEnum($typeName);
+
+                    $cases = $reflectionEnum->getCases();
+
+                    $enumValues = [];
+                    foreach ($cases as $case) {
+                        if ($case instanceof \ReflectionEnumBackedCase) {
+                            $enumValues[] = $case->getBackingValue();
+                        } else {
+                            $enumValues[] = $case->getName();
+                        }
+                    }
+
+                    // detect backing type (string/int)
+                    if ($reflectionEnum->isBacked()) {
+                        $backingType = $reflectionEnum->getBackingType()->getName();
+                        $schemaProp['type'] = $typeMap[$backingType] ?? 'string';
+                    } else {
+                        $schemaProp['type'] = 'string';
+                    }
+
+                    $schemaProp['enum'] = $enumValues;
+
+                } else {
+                    // default scalar handling
+                    $schemaProp['type'] = $typeMap[$typeName] ?? 'string';
+                }
+            } else {
+                $schemaProp['type'] = $openApiType;
+            }
 
             // -------- REQUIRED --------
             $isRequired = true;
